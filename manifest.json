@@ -1,0 +1,20 @@
+{
+  "name": "Text Overlay Tool",
+  "short_name": "Overlay Tool",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "icons8-candle-100.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons8-bible-100.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

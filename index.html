@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Overlay Tool</title>
+    <!-- Added html2canvas for image export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap');
+        
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .container { 
+            position: relative; 
+            display: inline-block; 
+            max-width: 90vw; 
+            max-height: 90vh; 
+            margin: 20px auto;
+        }
+        img { 
+            max-width: 100%; 
+            height: auto; 
+            display: block; 
+            margin: auto; 
+        }
+        .text-overlay {
+            position: absolute;
+            top: 55%;
+            left: 32%;
+            width: 43%;
+            transform: translate(0, -40%);
+            font-size: 24px;
+            color: black;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-family: 'Comic Sans MS', 'Lucida Handwriting', cursive;
+            text-align: center;
+            white-space: pre-wrap;
+            overflow-wrap: break-word;
+            line-height: 1.5;
+        }
+        .title-overlay {
+            position: absolute;
+            top: 30%;
+            left: 32%;
+            width: 43%;
+            font-size: 28px;
+            font-weight: bold;
+            color: #DAA520;
+            text-align: center;
+            font-family: 'Comic Sans MS', 'Lucida Handwriting', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            border-bottom: 2px solid #DAA520;
+            padding-bottom: 5px;
+        }
+        .brand-overlay {
+            position: absolute;
+            top: 14%; /* Adjusted to make it a bit lower */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 32px; /* Increased size */
+            font-family: 'Cinzel Decorative', serif; /* New elegant font */
+            color: #C5A572; /* Gradient color */
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.25);
+            font-weight: bold;
+            letter-spacing: 3px;
+            padding: 10px;
+            white-space: nowrap;
+        }
+        #textInput, #titleInput {
+            font-size: 20px;
+            padding: 5px;
+            width: 80%;
+            max-width: 500px;
+        }
+        #textInput {
+            height: 100px;
+            margin: 10px 0;
+        }
+        .text-overlay {
+            white-space: pre-line;
+        }
+        .download-btn {
+            background: linear-gradient(45deg, #C5A572, #DAA520);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Text Overlay Tool</h2>
+    <div class="controls">
+        <input type="file" id="imageUpload" accept="image/*"><br><br>
+        <input type="text" id="titleInput" placeholder="Enter your title"><br><br>
+        <textarea id="textInput" placeholder="Enter your text"></textarea><br><br>
+        <button class="download-btn" onclick="downloadImage()">Download Image</button>
+    </div>
+    <div class="container" id="capture">
+        <img id="image" src="" alt="Upload an image">
+        <div class="brand-overlay">HOLY MINISTRIES</div>
+        <div class="title-overlay" id="titleOverlay"></div>
+        <div class="text-overlay" id="textOverlay"></div>
+    </div>
+    <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const image = document.getElementById('image');
+        const textInput = document.getElementById('textInput');
+        const textOverlay = document.getElementById('textOverlay');
+        const titleInput = document.getElementById('titleInput');
+        const titleOverlay = document.getElementById('titleOverlay');
+        
+        imageUpload.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    image.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        textInput.addEventListener('input', function() {
+            textOverlay.textContent = textInput.value;
+            adjustTextSize();
+        });
+
+        titleInput.addEventListener('input', function() {
+            titleOverlay.textContent = titleInput.value;
+        });
+
+        function adjustTextSize() {
+            let fontSize = 24;
+            textOverlay.style.fontSize = fontSize + 'px';
+            while (textOverlay.scrollHeight > textOverlay.offsetHeight && fontSize > 10) {
+                fontSize--;
+                textOverlay.style.fontSize = fontSize + 'px';
+            }
+        }
+
+        // Function to download the image
+        async function downloadImage() {
+            const element = document.getElementById('capture');
+
+            try {
+                // Create canvas with better quality
+                const canvas = await html2canvas(element, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: null
+                });
+
+                // Convert to image and download
+                const image = canvas.toDataURL("image/png", 1.0);
+                const link = document.createElement('a');
+                link.download = 'holy-ministries-image.png';
+                link.href = image;
+                link.click();
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('There was an error generating the image. Please try again.');
+            }
+        }
+
+        // Registering Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+            .then(() => {
+                console.log('Service Worker registered successfully.');
+            }).catch((error) => {
+                console.log('Service Worker registration failed:', error);
+            });
+        }
+    </script>
+</body>
+</html>
